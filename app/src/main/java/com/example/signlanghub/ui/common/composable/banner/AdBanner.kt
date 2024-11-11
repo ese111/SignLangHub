@@ -1,10 +1,9 @@
-package com.example.signlanghub.ui.common.composable
+package com.example.signlanghub.ui.common.composable.banner
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,35 +26,36 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 internal fun AdBanner(
+    modifier: Modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
     title: String,
     description: String,
     image: ImageVector,
     readCount: String
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "광고 및 복지 정보",
-            fontSize = 16.sp,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Icon(
-                modifier = Modifier.size(120.dp).clip(RoundedCornerShape(16.dp)),
+                modifier = Modifier.size(80.dp).clip(RoundedCornerShape(16.dp)),
                 imageVector = image,
                 contentDescription = "Profile",
             )
             Column(
-                modifier = Modifier.weight(1f).height(120.dp),
             ) {
                 Text(
                     text = title,
-                    fontSize = 24.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -65,14 +65,14 @@ internal fun AdBanner(
 
                 Text(
                     text = description,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(
-                    modifier = Modifier.fillMaxWidth().weight(1f)
+                    modifier = Modifier.fillMaxWidth().height(10.dp)
                 )
 
                 Row(
@@ -88,7 +88,7 @@ internal fun AdBanner(
 
                     Text(
                         text = "Today • $readCount",
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Normal,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
