@@ -23,56 +23,72 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import timber.log.Timber
 
 @Composable
 internal fun AdBanner(
-    modifier: Modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+    modifier: Modifier = Modifier,
     title: String,
     description: String,
-    image: ImageVector,
+    imageUrl: String,
     readCount: String
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "광고 및 복지 정보",
             fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Icon(
-                modifier = Modifier.size(80.dp).clip(RoundedCornerShape(16.dp)),
-                imageVector = image,
-                contentDescription = "Profile",
+            AsyncImage(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(16.dp)),
+                model = imageUrl,
+                contentDescription = "Ad Banner",
+                onError = {
+                    Timber.d("Error: ${it.result.throwable}")
+                }
             )
-            Column(
-            ) {
+            Column{
                 Text(
                     text = title,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(
-                    modifier = Modifier.fillMaxWidth().height(2.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(2.dp)
                 )
 
                 Text(
                     text = description,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
-                    maxLines = 3,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(
-                    modifier = Modifier.fillMaxWidth().height(10.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(10.dp)
                 )
 
                 Row(
@@ -106,7 +122,7 @@ private fun AdBannerPreview() {
     AdBanner(
         title = "Title",
         description = "Description",
-        image = Icons.Default.AddCircle,
+        imageUrl = "https://api.lifeplanhd.kr/resources/image/JfQct53OjfF020plbv04bJQSgbd2.jpg",
         readCount = "100"
     )
 }
