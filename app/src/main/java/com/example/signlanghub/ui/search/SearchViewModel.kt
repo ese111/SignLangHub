@@ -27,12 +27,18 @@ class SearchViewModel
                                 keyword = viewState.value.keyword,
                             ).let { result ->
                                 result
-                                    .onSuccess {
-                                        setState {
-                                            copy(
-                                                searchResult = it,
-                                                uiState = UiState.SearchResult,
-                                            )
+                                    .onSuccess { response ->
+                                        if (response.isEmpty()) {
+                                            setState {
+                                                copy(uiState = UiState.NothingResult)
+                                            }
+                                        } else {
+                                            setState {
+                                                copy(
+                                                    searchResult = response,
+                                                    uiState = UiState.SearchResult,
+                                                )
+                                            }
                                         }
                                     }.onFailure {
                                         setEffect { SearchContract.Effect.ShowErrorToast }

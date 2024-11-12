@@ -1,6 +1,7 @@
 package com.example.signlanghub.ui.search.content
 
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,7 +19,7 @@ fun SearchResultContent(
         description = description,
     ) {
         Video(
-            modifier = Modifier.size(200.dp),
+            modifier = Modifier.width(200.dp).height(150.dp),
             uri = videoUrl,
         )
     }

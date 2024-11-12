@@ -6,7 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,6 +39,8 @@ import com.example.signlanghub.ui.common.composable.topbar.BasicAppbar
 import com.example.signlanghub.ui.common.icon.MyIconPack
 import com.example.signlanghub.ui.common.icon.myiconpack.Inbox
 import com.example.signlanghub.ui.search.SearchContract
+import com.example.signlanghub.ui.search.UiState
+import com.example.signlanghub.ui.search.content.EmptyContent
 import com.example.signlanghub.ui.search.content.SearchResultContent
 import com.example.signlanghub.ui.search.content.TodaySignContent
 import kotlinx.coroutines.flow.Flow
@@ -98,6 +102,7 @@ fun SearchScreen(
                 modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
                 trailingIcon = {
                     Row(
+                        modifier = Modifier.padding(horizontal = 12.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Icon(
@@ -118,35 +123,48 @@ fun SearchScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(vertical = 30.dp),
             ) {
 
-                if (state.searchResult.isEmpty()) {
-                    item {
-                        Column(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            AdBanner(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = "사단법인 함께하는 사랑밭&청각장애인생애지원센터가 함께하는 2023년 청각장애인 의료비 지원사업 『인공와우수술비 및 재활치료비 지원』안내",
-                                description = "청각장애인생애지원센터는 '함께하는 사랑밭'과 함께 저소득 청각장애인을 대상으로 인공달팽이관 수술비, 언어재활치료비 등을 지원합니다. \n이와 관련하여 지원을 받고자 하는 회원님들은 신청서 양식을 작성 후 접수하여 주시기 바랍니다.",
-                                imageUrl = "https://api.lifeplanhd.kr/resources/image/JfQct53OjfF020plbv04bJQSgbd2.jpg",
-                                readCount = "100",
+                when (state.uiState) {
+                    UiState.NothingResult -> {
+                        item {
+                            EmptyContent(
+                                text = "검색 결과가 없습니다.",
                             )
-                            TodaySignContent()
                         }
-
                     }
-                } else {
-                    itemsIndexed(
-                        items = state.searchResult,
-                        key = { _, item -> item.id },
-                    ) { index, item ->
-                        val title = if (index == 0) "[공식 수어]" else "[관련 수어]"
-                        SearchResultContent(
-                            title = title,
-                            description = item.keyword,
-                            videoUrl = item.videoUrl,
-                        )
+
+                    UiState.Main -> {
+                        item {
+                            Column(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                AdBanner(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    title = "사단법인 함께하는 사랑밭&청각장애인생애지원센터가 함께하는 2023년 청각장애인 의료비 지원사업 『인공와우수술비 및 재활치료비 지원』안내",
+                                    description = "청각장애인생애지원센터는 '함께하는 사랑밭'과 함께 저소득 청각장애인을 대상으로 인공달팽이관 수술비, 언어재활치료비 등을 지원합니다. \n이와 관련하여 지원을 받고자 하는 회원님들은 신청서 양식을 작성 후 접수하여 주시기 바랍니다.",
+                                    imageUrl = "https://api.lifeplanhd.kr/resources/image/JfQct53OjfF020plbv04bJQSgbd2.jpg",
+                                    readCount = "100",
+                                )
+                                TodaySignContent()
+                            }
+                        }
+                    }
+                    UiState.SearchResult -> {
+                        itemsIndexed(
+                            items = state.searchResult,
+                            key = { _, item -> item.id },
+                        ) { index, item ->
+                            val title = if (index == 0 && item.keyword == state.keyword) "[공식 수어]" else "[관련 수어]"
+
+                            SearchResultContent(
+                                title = title,
+                                description = item.keyword,
+                                videoUrl = item.videoUrl,
+                            )
+                            Spacer(modifier = Modifier.size(20.dp))
+                        }
                     }
                 }
             }
