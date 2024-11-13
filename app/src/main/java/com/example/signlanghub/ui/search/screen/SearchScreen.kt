@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import com.example.signlanghub.R
 import com.example.signlanghub.ui.common.composable.VideoProcessChoiceDialog
 import com.example.signlanghub.ui.common.composable.banner.AdBanner
@@ -43,9 +44,13 @@ import com.example.signlanghub.ui.search.UiState
 import com.example.signlanghub.ui.search.content.EmptyContent
 import com.example.signlanghub.ui.search.content.SearchResultContent
 import com.example.signlanghub.ui.search.content.TodaySignContent
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.shouldShowRationale
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SearchScreen(
     state: SearchContract.State,
@@ -54,6 +59,17 @@ fun SearchScreen(
     onNavigationRequested: (SearchContract.Effect.Navigation) -> Unit,
 ) {
     val context = LocalContext.current
+
+    // Camera permission state
+    val cameraPermissionState = rememberMultiplePermissionsState(
+        listOf(
+            android.Manifest.permission.CAMERA,
+        )
+    )
+
+    LaunchedEffect(true) {
+        cameraPermissionState.launchMultiplePermissionRequest()
+    }
 
     val pickImageLauncher =
         rememberLauncherForActivityResult(
@@ -64,9 +80,9 @@ fun SearchScreen(
             }
         }
 
-    val takePictureLauncher =
+    val takeVideoLauncher =
         rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.TakePicture(),
+            contract = ActivityResultContracts.CaptureVideo(),
             onResult = { isSuccess ->
                 Timber.i("Take Picture Result : $isSuccess")
             },
@@ -93,15 +109,34 @@ fun SearchScreen(
             modifier = Modifier.padding(paddingValues).fillMaxWidth().padding(horizontal = 20.dp),
         ) {
             if (state.videoProcessDialogVisible) {
-                VideoProcessChoiceDialog(
-                    onDismissRequest = {
+                if (cameraPermissionState.allPermissionsGranted) {
+                    VideoProcessChoiceDialog(
+                        onDismissRequest = {
+                            onEventSent(SearchContract.Event.DismissVideoProcessBottomSheet)
+                        },
+                        goToGallery = {
+                            pickImageLauncher.launch("video/*")
+                        },
+                        takePicture = {
+//                            val contentUri = FileProvider.getUriForFile(
+//                                context,
+//                                "com.example.myapp.fileprovider",
+//                                file
+//                            )
+//                            takeVideoLauncher.launch("")
+                        },
+                    )
+                } else {
+                    // 임시
+                    if (cameraPermissionState.permissions.all { it.status.shouldShowRationale }) {
+                        Toast.makeText(context, "카메라 권한을 허용해야 해당 기능이 사용가능합니다.", Toast.LENGTH_SHORT).show()
                         onEventSent(SearchContract.Event.DismissVideoProcessBottomSheet)
-                    },
-                    goToGallery = {
-                    },
-                    takePicture = {
-                    },
-                )
+                    } else {
+                        Toast.makeText(context, "카메라 권한을 허용해야 해당 기능이 사용가능합니다.", Toast.LENGTH_SHORT).show()
+                        onEventSent(SearchContract.Event.DismissVideoProcessBottomSheet)
+                    }
+                }
+
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -129,7 +164,7 @@ fun SearchScreen(
                 label = {
                     DefaultText(text = "검색어를 입력하세요")
                 },
-                modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 trailingIcon = {
                     Row(
                         modifier = Modifier.padding(horizontal = 12.dp),

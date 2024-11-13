@@ -57,21 +57,13 @@ internal fun HomeContent(
                 )
             }
         },
-        bottomBar = {
-            AdBanner(
-                title = "사단법인 함께하는 사랑밭&청각장애인생애지원센터가 함께하는 2023년 청각장애인 의료비 지원사업 『인공와우수술비 및 재활치료비 지원』안내",
-                description = "청각장애인생애지원센터는 '함께하는 사랑밭'과 함께 저소득 청각장애인을 대상으로 인공달팽이관 수술비, 언어재활치료비 등을 지원합니다. \n이와 관련하여 지원을 받고자 하는 회원님들은 신청서 양식을 작성 후 접수하여 주시기 바랍니다.",
-                imageUrl = "https://api.lifeplanhd.kr/resources/image/JfQct53OjfF020plbv04bJQSgbd2.jpg",
-                readCount = "100",
-            )
-        },
     ) { paddingValues ->
         Column(
             modifier =
                 Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
-                    .padding(20.dp)
+                    .padding(horizontal = 20.dp)
                     .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
@@ -131,7 +123,12 @@ internal fun HomeContent(
                 },
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            AdBanner(
+                title = "사단법인 함께하는 사랑밭&청각장애인생애지원센터가 함께하는 2023년 청각장애인 의료비 지원사업 『인공와우수술비 및 재활치료비 지원』안내",
+                description = "청각장애인생애지원센터는 '함께하는 사랑밭'과 함께 저소득 청각장애인을 대상으로 인공달팽이관 수술비, 언어재활치료비 등을 지원합니다. \n이와 관련하여 지원을 받고자 하는 회원님들은 신청서 양식을 작성 후 접수하여 주시기 바랍니다.",
+                imageUrl = "https://api.lifeplanhd.kr/resources/image/JfQct53OjfF020plbv04bJQSgbd2.jpg",
+                readCount = "100",
+            )
         }
     }
 }

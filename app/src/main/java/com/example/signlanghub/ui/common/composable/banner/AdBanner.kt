@@ -37,7 +37,7 @@ internal fun AdBanner(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 8.dp),
+            .padding(vertical = 8.dp),
         verticalArrangement = Arrangement.Center
     ) {
         Text(
