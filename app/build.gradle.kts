@@ -97,4 +97,5 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit.kotlin.serialization)
+    implementation(libs.accompanist.permissions)
 }

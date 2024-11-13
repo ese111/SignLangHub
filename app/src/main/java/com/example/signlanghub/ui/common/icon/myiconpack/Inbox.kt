@@ -9,9 +9,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import com.example.signlanghub.ui.common.icon.MyIconPack
+import com.example.signlanghub.ui.common.icon.IconPack
 
-val MyIconPack.Inbox: ImageVector
+val IconPack.Inbox: ImageVector
     get() {
         if (_inbox != null) {
             return _inbox!!

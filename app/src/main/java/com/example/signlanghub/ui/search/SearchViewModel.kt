@@ -21,31 +21,43 @@ class SearchViewModel
                     setState { copy(keyword = event.keyword) }
                 }
                 SearchContract.Event.OnClickSearch -> {
-                    viewModelScope.launch {
-                        searchRepository
-                            .getSearch(
-                                keyword = viewState.value.keyword,
-                            ).let { result ->
-                                result
-                                    .onSuccess { response ->
-                                        if (response.isEmpty()) {
-                                            setState {
-                                                copy(uiState = UiState.NothingResult)
-                                            }
-                                        } else {
-                                            setState {
-                                                copy(
-                                                    searchResult = response,
-                                                    uiState = UiState.SearchResult,
-                                                )
-                                            }
-                                        }
-                                    }.onFailure {
-                                        setEffect { SearchContract.Effect.ShowErrorToast }
+                    getSearch()
+                }
+
+                SearchContract.Event.ShowVideoProcessBottomSheet -> {
+                    setState { copy(videoProcessDialogVisible = true) }
+                }
+
+                SearchContract.Event.DismissVideoProcessBottomSheet -> {
+                    setState { copy(videoProcessDialogVisible = false) }
+                }
+            }
+        }
+
+        private fun getSearch() {
+            viewModelScope.launch {
+                searchRepository
+                    .getSearch(
+                        keyword = viewState.value.keyword,
+                    ).let { result ->
+                        result
+                            .onSuccess { response ->
+                                if (response.isEmpty()) {
+                                    setState {
+                                        copy(uiState = UiState.NothingResult)
                                     }
+                                } else {
+                                    setState {
+                                        copy(
+                                            searchResult = response,
+                                            uiState = UiState.SearchResult,
+                                        )
+                                    }
+                                }
+                            }.onFailure {
+                                setEffect { SearchContract.Effect.ShowErrorToast }
                             }
                     }
-                }
             }
         }
     }

@@ -7,7 +7,9 @@ import com.example.signlanghub.ui.base.ViewState
 
 sealed class UiState {
     data object Main : UiState()
+
     data object SearchResult : UiState()
+
     data object NothingResult : UiState()
 }
 
@@ -16,6 +18,7 @@ sealed interface SearchContract {
         val keyword: String = "",
         val searchResult: List<SearchDTO> = emptyList(),
         val uiState: UiState = UiState.Main,
+        val videoProcessDialogVisible: Boolean = false,
     ) : ViewState
 
     sealed class Event : ViewEvent {
@@ -24,6 +27,10 @@ sealed interface SearchContract {
         ) : Event()
 
         data object OnClickSearch : Event()
+
+        data object ShowVideoProcessBottomSheet : Event()
+
+        data object DismissVideoProcessBottomSheet : Event()
     }
 
     sealed class Effect : ViewSideEffect {
