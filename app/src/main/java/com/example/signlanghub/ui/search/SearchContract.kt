@@ -1,5 +1,6 @@
 package com.example.signlanghub.ui.search
 
+import android.net.Uri
 import com.example.signlanghub.data.model.SearchDTO
 import com.example.signlanghub.ui.base.ViewEvent
 import com.example.signlanghub.ui.base.ViewSideEffect
@@ -19,9 +20,14 @@ sealed interface SearchContract {
         val searchResult: List<SearchDTO> = emptyList(),
         val uiState: UiState = UiState.Main,
         val videoProcessDialogVisible: Boolean = false,
+        val videoUri: Uri? = null,
     ) : ViewState
 
     sealed class Event : ViewEvent {
+        data class GetVideoUri(
+            val uri: Uri,
+        ) : Event()
+
         data class OnChangeKeyword(
             val keyword: String,
         ) : Event()
@@ -31,6 +37,10 @@ sealed interface SearchContract {
         data object ShowVideoProcessBottomSheet : Event()
 
         data object DismissVideoProcessBottomSheet : Event()
+
+        data class OnSearchVideo(
+            val uri: String,
+        ) : Event()
     }
 
     sealed class Effect : ViewSideEffect {

@@ -2,6 +2,7 @@ package com.example.signlanghub.data.repository
 
 import com.example.signlanghub.data.api.SignLangApi
 import kotlinx.coroutines.Dispatchers
+import okhttp3.MultipartBody
 import javax.inject.Inject
 
 class SearchRepositoryImpl
@@ -15,8 +16,8 @@ class SearchRepositoryImpl
                 signLangApi.getSearch(keyword)
             }
 
-        override suspend fun postImageSearch(keyword: String) =
+        override suspend fun postImageSearch(file: MultipartBody.Part) =
             makeApiCall(dispatcher = Dispatchers.IO) {
-                signLangApi.postImageSearch(keyword)
+                signLangApi.postImageSearch(file)
             }
     }

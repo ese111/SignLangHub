@@ -1,6 +1,7 @@
 package com.example.signlanghub.ui.search.screen
 
 import android.net.Uri
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import com.example.signlanghub.R
 import com.example.signlanghub.ui.common.composable.VideoProcessChoiceDialog
 import com.example.signlanghub.ui.common.composable.banner.AdBanner
@@ -44,6 +44,7 @@ import com.example.signlanghub.ui.search.UiState
 import com.example.signlanghub.ui.search.content.EmptyContent
 import com.example.signlanghub.ui.search.content.SearchResultContent
 import com.example.signlanghub.ui.search.content.TodaySignContent
+import com.example.signlanghub.util.createVideoFile
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.shouldShowRationale
@@ -61,22 +62,33 @@ fun SearchScreen(
     val context = LocalContext.current
 
     // Camera permission state
-    val cameraPermissionState = rememberMultiplePermissionsState(
-        listOf(
-            android.Manifest.permission.CAMERA,
+    val cameraPermissionState =
+        rememberMultiplePermissionsState(
+            listOf(
+                android.Manifest.permission.CAMERA,
+            ),
         )
-    )
 
     LaunchedEffect(true) {
         cameraPermissionState.launchMultiplePermissionRequest()
     }
 
-    val pickImageLauncher =
+    val pickVideoLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent(),
         ) { result: Uri? ->
             result?.let { uri ->
-                Timber.i("createImageFile Selected Image Uri : $uri")
+                Timber.i("Pick Video Uri : $uri")
+                onEventSent(SearchContract.Event.GetVideoUri(uri))
+                var columnIndex = 0
+                val proj = arrayOf(MediaStore.Video.Media.DATA)
+                val cursor = context.contentResolver.query(uri, proj, null, null, null)
+
+                if (cursor!!.moveToFirst()) {
+                    columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
+                }
+
+                onEventSent(SearchContract.Event.OnSearchVideo(cursor.getString(columnIndex)))
             }
         }
 
@@ -84,7 +96,19 @@ fun SearchScreen(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.CaptureVideo(),
             onResult = { isSuccess ->
-                Timber.i("Take Picture Result : $isSuccess")
+                Timber.i("Take Video Result : $isSuccess uri : ${state.videoUri}")
+                if (isSuccess) {
+                    state.videoUri?.let { fileUri ->
+                        var columnIndex = 0
+                        val proj = arrayOf(MediaStore.Video.Media.DATA)
+                        val cursor = context.contentResolver.query(fileUri, proj, null, null, null)
+
+                        if (cursor!!.moveToFirst()) {
+                            columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
+                        }
+                        onEventSent(SearchContract.Event.OnSearchVideo(cursor.getString(columnIndex)))
+                    }
+                }
             },
         )
 
@@ -115,19 +139,16 @@ fun SearchScreen(
                             onEventSent(SearchContract.Event.DismissVideoProcessBottomSheet)
                         },
                         goToGallery = {
-                            pickImageLauncher.launch("video/*")
+                            pickVideoLauncher.launch("video/*")
                         },
                         takePicture = {
-//                            val contentUri = FileProvider.getUriForFile(
-//                                context,
-//                                "com.example.myapp.fileprovider",
-//                                file
-//                            )
-//                            takeVideoLauncher.launch("")
+                            createVideoFile(context.contentResolver)?.let { uri ->
+                                onEventSent(SearchContract.Event.GetVideoUri(uri))
+                                takeVideoLauncher.launch(uri)
+                            }
                         },
                     )
                 } else {
-                    // 임시
                     if (cameraPermissionState.permissions.all { it.status.shouldShowRationale }) {
                         Toast.makeText(context, "카메라 권한을 허용해야 해당 기능이 사용가능합니다.", Toast.LENGTH_SHORT).show()
                         onEventSent(SearchContract.Event.DismissVideoProcessBottomSheet)
@@ -136,7 +157,6 @@ fun SearchScreen(
                         onEventSent(SearchContract.Event.DismissVideoProcessBottomSheet)
                     }
                 }
-
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
