@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -25,7 +26,7 @@ import com.example.signlanghub.ui.common.composable.text.DefaultText
 fun BasicAppbar(
     modifier: Modifier = Modifier,
     title: String = "SignLangHub",
-    popbackStack: () -> Unit = {}
+    popbackStack: () -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 18.dp),
@@ -33,12 +34,12 @@ fun BasicAppbar(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Icon(
-            modifier = Modifier.clickable { popbackStack() },
+            modifier = Modifier.size(32.dp).clickable { popbackStack() },
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = "Back",
         )
         DefaultText(
-            fontSize = 18.sp,
+            fontSize = 20.sp,
             text = title,
             fontWeight = FontWeight.Bold
         )

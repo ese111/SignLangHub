@@ -31,7 +31,9 @@ internal fun MainGraph(
         }
 
         composable("home") {
-            HomeDestination(navHostController)
+            HomeDestination(
+                navHostController = navHostController,
+            )
         }
 
         composable("search") {

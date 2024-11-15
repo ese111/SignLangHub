@@ -1,3 +1,4 @@
+
 package com.example.signlanghub.ui.login.content
 
 import androidx.compose.foundation.BorderStroke
@@ -45,60 +46,55 @@ internal fun LoginContent(
             fontFamily = InterFamily
         )
 
-        Card(
-            shape = RoundedCornerShape(24.dp),
-            border = BorderStroke(
-                2.dp,
-                color = Color.Gray
-            )
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                OutlinedTextField(
-                    value = state.id,
-                    onValueChange = {
-                        onEvent(LoginContract.Event.OnChangeId(it))
-                    },
-                    label = {
-                        Text(
-                            text = "아이디",
-                        )
-                    }
-                )
-
-                OutlinedTextField(
-                    value = state.password,
-                    visualTransformation = PasswordVisualTransformation(),
-                    onValueChange = {
-                        onEvent(LoginContract.Event.OnChangePassword(it))
-                    },
-                    label = {
-                        Text(
-                            text = "비밀번호"
-                        )
-                    }
-                )
-
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    onClick = {
-                         onEvent(LoginContract.Event.OnClickLogin)
-                    },
-                ) {
+            OutlinedTextField(
+                value = state.id,
+                onValueChange = {
+                    onEvent(LoginContract.Event.OnChangeId(it))
+                },
+                label = {
                     Text(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
-                        text = "Sign In",
-                        fontFamily = InterFamily,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                        text = "아이디",
                     )
                 }
+            )
 
+            OutlinedTextField(
+                value = state.password,
+                visualTransformation = PasswordVisualTransformation(),
+                onValueChange = {
+                    onEvent(LoginContract.Event.OnChangePassword(it))
+                },
+                label = {
+                    Text(
+                        text = "비밀번호"
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier.fillMaxWidth().height(12.dp))
+
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                onClick = {
+                    onEvent(LoginContract.Event.OnClickLogin)
+                },
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
+                    text = "Sign In",
+                    fontFamily = InterFamily,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
             }
+
         }
     }
 

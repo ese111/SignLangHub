@@ -21,6 +21,7 @@ sealed interface SearchContract {
         val uiState: UiState = UiState.Main,
         val videoProcessDialogVisible: Boolean = false,
         val videoUri: Uri? = null,
+        val isVideoCheckDialogVisible: Boolean = false
     ) : ViewState
 
     sealed class Event : ViewEvent {
@@ -34,18 +35,25 @@ sealed interface SearchContract {
 
         data object OnClickSearch : Event()
 
-        data object ShowVideoProcessBottomSheet : Event()
+        data object ShowVideoProcessDialog : Event()
 
-        data object DismissVideoProcessBottomSheet : Event()
+        data object DismissVideoProcessDialog : Event()
 
         data class OnSearchVideo(
             val uri: String,
         ) : Event()
+
+        data object DismissVideoCheckDialog : Event()
+
+        data object ShowVideoCheckDialog : Event()
     }
 
     sealed class Effect : ViewSideEffect {
         data object ShowErrorToast : Effect()
 
-        sealed class Navigation : Effect()
+        sealed class Navigation : Effect() {
+            data object Banner : Navigation()
+            data object PopBackStack : Navigation()
+        }
     }
 }

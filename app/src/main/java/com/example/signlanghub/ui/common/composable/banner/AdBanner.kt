@@ -1,5 +1,6 @@
 package com.example.signlanghub.ui.common.composable.banner
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,10 +33,12 @@ internal fun AdBanner(
     title: String,
     description: String,
     imageUrl: String,
-    readCount: String
+    readCount: String,
+    onClick: () -> Unit = {}
 ) {
     Column(
         modifier = modifier
+            .clickable { onClick() }
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         verticalArrangement = Arrangement.Center

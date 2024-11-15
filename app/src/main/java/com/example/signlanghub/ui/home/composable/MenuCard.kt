@@ -39,9 +39,6 @@ internal fun MenuCard(
         elevation = CardDefaults.elevatedCardElevation(
             defaultElevation = 8.dp,
         ),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-        )
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(20.dp),

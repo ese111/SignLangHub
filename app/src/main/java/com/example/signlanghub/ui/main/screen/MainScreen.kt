@@ -13,6 +13,6 @@ internal fun MainScreen(
 
     MainGraph(
         modifier = modifier,
-        navHostController = mainState.navHostController
+        navHostController = mainState.navHostController,
     )
 }

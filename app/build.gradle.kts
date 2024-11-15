@@ -24,6 +24,8 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "BASE_URL", localProperties["BASE_URL"] as String)
+        buildConfigField("String", "LOCALIZATION_URL", localProperties["LOCALIZATION_URL"] as String)
+        buildConfigField("String", "TRANSLATION_URL", localProperties["TRANSLATION_URL"] as String)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -98,4 +100,5 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit.kotlin.serialization)
     implementation(libs.accompanist.permissions)
+    implementation(libs.androidx.browser)
 }

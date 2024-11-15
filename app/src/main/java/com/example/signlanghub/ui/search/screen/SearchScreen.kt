@@ -5,6 +5,7 @@ import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -25,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -33,7 +36,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.signlanghub.R
-import com.example.signlanghub.ui.common.composable.VideoProcessChoiceDialog
 import com.example.signlanghub.ui.common.composable.banner.AdBanner
 import com.example.signlanghub.ui.common.composable.text.DefaultText
 import com.example.signlanghub.ui.common.composable.topbar.BasicAppbar
@@ -41,6 +43,8 @@ import com.example.signlanghub.ui.common.icon.IconPack
 import com.example.signlanghub.ui.common.icon.myiconpack.Inbox
 import com.example.signlanghub.ui.search.SearchContract
 import com.example.signlanghub.ui.search.UiState
+import com.example.signlanghub.ui.search.composable.dialog.VideoCheckDialog
+import com.example.signlanghub.ui.search.composable.dialog.VideoProcessChoiceDialog
 import com.example.signlanghub.ui.search.content.EmptyContent
 import com.example.signlanghub.ui.search.content.SearchResultContent
 import com.example.signlanghub.ui.search.content.TodaySignContent
@@ -80,15 +84,7 @@ fun SearchScreen(
             result?.let { uri ->
                 Timber.i("Pick Video Uri : $uri")
                 onEventSent(SearchContract.Event.GetVideoUri(uri))
-                var columnIndex = 0
-                val proj = arrayOf(MediaStore.Video.Media.DATA)
-                val cursor = context.contentResolver.query(uri, proj, null, null, null)
-
-                if (cursor!!.moveToFirst()) {
-                    columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
-                }
-
-                onEventSent(SearchContract.Event.OnSearchVideo(cursor.getString(columnIndex)))
+                onEventSent(SearchContract.Event.ShowVideoCheckDialog)
             }
         }
 
@@ -98,16 +94,7 @@ fun SearchScreen(
             onResult = { isSuccess ->
                 Timber.i("Take Video Result : $isSuccess uri : ${state.videoUri}")
                 if (isSuccess) {
-                    state.videoUri?.let { fileUri ->
-                        var columnIndex = 0
-                        val proj = arrayOf(MediaStore.Video.Media.DATA)
-                        val cursor = context.contentResolver.query(fileUri, proj, null, null, null)
-
-                        if (cursor!!.moveToFirst()) {
-                            columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
-                        }
-                        onEventSent(SearchContract.Event.OnSearchVideo(cursor.getString(columnIndex)))
-                    }
+                    onEventSent(SearchContract.Event.ShowVideoCheckDialog)
                 }
             },
         )
@@ -118,6 +105,14 @@ fun SearchScreen(
                 SearchContract.Effect.ShowErrorToast -> {
                     Toast.makeText(context, "검색 결과를 가져오는 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
                 }
+
+                SearchContract.Effect.Navigation.Banner -> {
+
+                }
+
+                SearchContract.Effect.Navigation.PopBackStack -> {
+
+                }
             }
         }
     }
@@ -126,6 +121,11 @@ fun SearchScreen(
         topBar = {
             BasicAppbar(
                 title = "검색하기",
+                popbackStack = {
+                    onNavigationRequested(
+                        SearchContract.Effect.Navigation.PopBackStack
+                    )
+                }
             )
         },
     ) { paddingValues ->
@@ -136,7 +136,7 @@ fun SearchScreen(
                 if (cameraPermissionState.allPermissionsGranted) {
                     VideoProcessChoiceDialog(
                         onDismissRequest = {
-                            onEventSent(SearchContract.Event.DismissVideoProcessBottomSheet)
+                            onEventSent(SearchContract.Event.DismissVideoProcessDialog)
                         },
                         goToGallery = {
                             pickVideoLauncher.launch("video/*")
@@ -151,12 +151,38 @@ fun SearchScreen(
                 } else {
                     if (cameraPermissionState.permissions.all { it.status.shouldShowRationale }) {
                         Toast.makeText(context, "카메라 권한을 허용해야 해당 기능이 사용가능합니다.", Toast.LENGTH_SHORT).show()
-                        onEventSent(SearchContract.Event.DismissVideoProcessBottomSheet)
+                        onEventSent(SearchContract.Event.DismissVideoProcessDialog)
                     } else {
                         Toast.makeText(context, "카메라 권한을 허용해야 해당 기능이 사용가능합니다.", Toast.LENGTH_SHORT).show()
-                        onEventSent(SearchContract.Event.DismissVideoProcessBottomSheet)
+                        onEventSent(SearchContract.Event.DismissVideoProcessDialog)
                     }
                 }
+            }
+
+            if (state.isVideoCheckDialogVisible) {
+                VideoCheckDialog(
+                    url = state.videoUri?.toString().orEmpty(),
+                    onClickConfirm = { uri ->
+                        state.videoUri?.let {
+                            var columnIndex = 0
+                            val proj = arrayOf(MediaStore.Video.Media.DATA)
+                            val cursor = context.contentResolver.query(state.videoUri, proj, null, null, null)
+
+                            if (cursor!!.moveToFirst()) {
+                                columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
+                            }
+
+                            val url = cursor.getString(columnIndex)
+                            onEventSent(SearchContract.Event.OnSearchVideo(url))
+                        } ?: run {
+                            Toast.makeText(context, "사진을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+                        }
+
+                    },
+                    onDismissRequest = {
+                        onEventSent(SearchContract.Event.DismissVideoCheckDialog)
+                    }
+                )
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -164,7 +190,7 @@ fun SearchScreen(
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
             ) {
                 Icon(
-                    modifier = Modifier.size(80.dp),
+                    modifier = Modifier.size(80.dp).background(Color.White).clip(RoundedCornerShape(8.dp)),
                     painter = painterResource(R.drawable.image_search),
                     contentDescription = "Search",
                     tint = Color.Unspecified,
@@ -201,7 +227,7 @@ fun SearchScreen(
                         Icon(
                             modifier =
                                 Modifier.clickable {
-                                    onEventSent(SearchContract.Event.ShowVideoProcessBottomSheet)
+                                    onEventSent(SearchContract.Event.ShowVideoProcessDialog)
                                 },
                             imageVector = IconPack.Inbox,
                             contentDescription = "Search",
@@ -234,6 +260,9 @@ fun SearchScreen(
                                     description = "사단법인 함께하는 사랑밭과 청각장애인생애지원센터는 2년 연속 상호협력하여 경제적으로 어려움을 겪는 청각장애인에게 인공달팽이관 수술 및 재활치료비를 지원합니다.",
                                     imageUrl = "https://api.lifeplanhd.kr/resources/image/V02c0HvZuD4Z0b9MfO2MFtsgSwz2.png",
                                     readCount = "1,000",
+                                    onClick = {
+                                        onNavigationRequested(SearchContract.Effect.Navigation.Banner)
+                                    }
                                 )
                                 TodaySignContent()
                             }
