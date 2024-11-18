@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -287,10 +287,10 @@ fun SearchScreen(
                     UiState.Loading -> {
                         item {
                             Box(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.fillMaxWidth().height(320.dp),
                             ) {
                                 CircularProgressIndicator(
-                                    modifier = Modifier.align(Alignment.Center).size(24.dp),
+                                    modifier = Modifier.align(Alignment.Center).size(50.dp),
                                 )
                             }
                         }

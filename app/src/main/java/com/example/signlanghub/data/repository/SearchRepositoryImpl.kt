@@ -22,7 +22,11 @@ class SearchRepositoryImpl
             }
 
         override suspend fun postImageSearch(file: MultipartBody.Part) =
-            makeApiCall(dispatcher = Dispatchers.IO) {
-                signLangApi.postImageSearch(file)
+            flow {
+                emit(
+                    makeApiCall(dispatcher = Dispatchers.IO) {
+                        signLangApi.postImageSearch(file)
+                    },
+                )
             }
     }

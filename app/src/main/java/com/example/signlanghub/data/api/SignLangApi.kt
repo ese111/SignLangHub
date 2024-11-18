@@ -9,13 +9,13 @@ import retrofit2.http.Part
 import retrofit2.http.Query
 
 interface SignLangApi {
-    @GET("search-test")
+    @GET("search")
     suspend fun getSearch(
         @Query("keyword") keyword: String,
     ): List<SearchDTO>
 
     @Multipart
-    @POST("search-test/upload")
+    @POST("search/upload")
     suspend fun postImageSearch(
         @Part file: MultipartBody.Part,
     ): List<SearchDTO>
