@@ -8,10 +8,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,6 +22,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -107,11 +110,9 @@ fun SearchScreen(
                 }
 
                 SearchContract.Effect.Navigation.Banner -> {
-
                 }
 
                 SearchContract.Effect.Navigation.PopBackStack -> {
-
                 }
             }
         }
@@ -123,9 +124,9 @@ fun SearchScreen(
                 title = "검색하기",
                 popbackStack = {
                     onNavigationRequested(
-                        SearchContract.Effect.Navigation.PopBackStack
+                        SearchContract.Effect.Navigation.PopBackStack,
                     )
-                }
+                },
             )
         },
     ) { paddingValues ->
@@ -177,11 +178,10 @@ fun SearchScreen(
                         } ?: run {
                             Toast.makeText(context, "사진을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
                         }
-
                     },
                     onDismissRequest = {
                         onEventSent(SearchContract.Event.DismissVideoCheckDialog)
-                    }
+                    },
                 )
             }
             Row(
@@ -262,7 +262,7 @@ fun SearchScreen(
                                     readCount = "1,000",
                                     onClick = {
                                         onNavigationRequested(SearchContract.Effect.Navigation.Banner)
-                                    }
+                                    },
                                 )
                                 TodaySignContent()
                             }
@@ -281,6 +281,18 @@ fun SearchScreen(
                                 videoUrl = item.videoUrl,
                             )
                             Spacer(modifier = Modifier.size(20.dp))
+                        }
+                    }
+
+                    UiState.Loading -> {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.align(Alignment.Center).size(24.dp),
+                                )
+                            }
                         }
                     }
                 }

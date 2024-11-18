@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.signlanghub.data.repository.SearchRepository
 import com.example.signlanghub.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -26,15 +27,16 @@ class SearchViewModel
 
                 SearchContract.Event.OnClickSearch -> getSearch()
 
-                SearchContract.Event.ShowVideoProcessDialog ->  setState { copy(videoProcessDialogVisible = true) }
+                SearchContract.Event.ShowVideoProcessDialog -> setState { copy(videoProcessDialogVisible = true) }
 
                 SearchContract.Event.DismissVideoProcessDialog -> setState { copy(videoProcessDialogVisible = false) }
 
-                is SearchContract.Event.GetVideoUri -> setState {
-                    copy(
-                        videoUri = event.uri,
-                    )
-                }
+                is SearchContract.Event.GetVideoUri ->
+                    setState {
+                        copy(
+                            videoUri = event.uri,
+                        )
+                    }
 
                 is SearchContract.Event.OnSearchVideo -> searchVideo(event.uri)
 
@@ -51,22 +53,27 @@ class SearchViewModel
                 val video = MultipartBody.Part.createFormData("file", file.getName(), requestFile)
                 searchRepository
                     .postImageSearch(video)
-                    .onSuccess { response ->
-                        if (response.isEmpty()) {
-                            setState {
-                                copy(uiState = UiState.NothingResult)
+                    .onStart {
+                        setState { copy(uiState = UiState.Loading) }
+                    }.collect { result ->
+                        result
+                            .onSuccess { response ->
+                                if (response.isEmpty()) {
+                                    setState {
+                                        copy(uiState = UiState.NothingResult)
+                                    }
+                                } else {
+                                    setState {
+                                        copy(
+                                            searchResult = response,
+                                            uiState = UiState.SearchResult,
+                                        )
+                                    }
+                                }
+                            }.onFailure {
+                                Timber.e(it)
+                                setEffect { SearchContract.Effect.ShowErrorToast }
                             }
-                        } else {
-                            setState {
-                                copy(
-                                    searchResult = response,
-                                    uiState = UiState.SearchResult,
-                                )
-                            }
-                        }
-                    }.onFailure {
-                        Timber.e(it)
-                        setEffect { SearchContract.Effect.ShowErrorToast }
                     }
             }
         }
@@ -76,7 +83,9 @@ class SearchViewModel
                 searchRepository
                     .getSearch(
                         keyword = viewState.value.keyword.trim(),
-                    ).let { result ->
+                    ).onStart {
+                        setState { copy(uiState = UiState.Loading) }
+                    }.collect { result ->
                         result
                             .onSuccess { response ->
                                 if (response.isEmpty()) {

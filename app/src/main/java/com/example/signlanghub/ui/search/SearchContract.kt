@@ -12,6 +12,8 @@ sealed class UiState {
     data object SearchResult : UiState()
 
     data object NothingResult : UiState()
+
+    data object Loading : UiState()
 }
 
 sealed interface SearchContract {
@@ -21,7 +23,7 @@ sealed interface SearchContract {
         val uiState: UiState = UiState.Main,
         val videoProcessDialogVisible: Boolean = false,
         val videoUri: Uri? = null,
-        val isVideoCheckDialogVisible: Boolean = false
+        val isVideoCheckDialogVisible: Boolean = false,
     ) : ViewState
 
     sealed class Event : ViewEvent {
@@ -53,6 +55,7 @@ sealed interface SearchContract {
 
         sealed class Navigation : Effect() {
             data object Banner : Navigation()
+
             data object PopBackStack : Navigation()
         }
     }
